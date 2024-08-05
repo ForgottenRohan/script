@@ -2,6 +2,7 @@ from config import urls, passwords, logins
 from mess import send_message, log_in
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 import time
 from datetime import datetime
 import schedule
@@ -15,10 +16,12 @@ logging.basicConfig(
 )
 
 def wd() -> None:
-    # options = webdriver.ChromeOptions()
-    # options.add_argument('--headless')
-    driver = webdriver.Chrome()
-    driver2 = webdriver.Chrome()
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')
+    driver = webdriver.Chrome(options)
+    driver2 = webdriver.Chrome(options)
+    driver.implicitly_wait(30)
+    driver2.implicitly_wait(30)
     log_in(driver2)
     for num, url in enumerate(urls):
         login = logins[num]
@@ -29,8 +32,12 @@ def wd() -> None:
         driver.find_element(by=By.TAG_NAME, value='button').click()
         time.sleep(5)
         work_url = change_link(url)
-        driver.get(work_url)
-        time.sleep(5)
+        try:
+            driver.get(work_url)
+            time.sleep(5)
+        except NoSuchElementException:
+            driver.get(work_url)
+            time.sleep(5)
         try:
             table = driver.find_element(by=By.TAG_NAME, value='tbody')
             users = table.find_elements(by=By.TAG_NAME, value='tr')
@@ -58,10 +65,11 @@ def change_link(url: str) -> str:
     logging.info(date)
     return f'{url}/guests.cards/?from={date}&to={date}'
 
+
 if __name__ == '__main__':
     try:
 
-        schedule.every().day.at('').do(wd)
+        schedule.every().day.at('00:00').do(wd)
     except Exception as e:
         logging.error(e)
     while True:
