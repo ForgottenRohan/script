@@ -34,8 +34,8 @@ def send_message(driver: Chrome, num: int, name:str, phone:str) -> None:
     driver.find_element(by=By.ID, value='name').send_keys(name)
     driver.find_element(by=By.ID, value='phone').send_keys(phone)
     time.sleep(3)
-    # driver.find_elements(by=By.TAG_NAME, value='button')[2].click()
-    # time.sleep(10)
+    driver.find_elements(by=By.TAG_NAME, value='button')[2].click()
+    time.sleep(10)
     logging.info('Message send')
 
 
