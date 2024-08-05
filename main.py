@@ -18,6 +18,7 @@ logging.basicConfig(
 def wd() -> None:
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
     service = webdriver.ChromeService(executable_path='ПУТЬ_ДО_ДРАЙВЕРА')
     driver = webdriver.Chrome(options, service)
     driver2 = webdriver.Chrome(options, service)
