@@ -1,16 +1,25 @@
 from config import urls, passwords, logins
-from mess import send_message
+from mess import send_message, log_in
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
 from datetime import datetime
 import schedule
+import logging
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    datefmt="%Y-%m-%d %H:%M:%S",
+    format="[%(asctime)s.%(msecs)03d] %(module)10s:%(lineno)-3d %(levelname)-7s - %(message)s",
+)
 
 def wd() -> None:
-    options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
-    driver = webdriver.Chrome(options=options)
-    driver2 = webdriver.Chrome(options=options)
+    # options = webdriver.ChromeOptions()
+    # options.add_argument('--headless')
+    driver = webdriver.Chrome()
+    driver2 = webdriver.Chrome()
+    log_in(driver2)
     for num, url in enumerate(urls):
         login = logins[num]
         password = passwords[num]
@@ -31,27 +40,30 @@ def wd() -> None:
                 for index, user in enumerate(users):
                     name = user.find_elements(by=By.TAG_NAME, value='td')[3].text
                     phone = user.find_elements(by=By.TAG_NAME, value='td')[4].text
-                    print(f'[INFO] filial №{num} {name} {phone} DONE')
-                    if num == 0 and index == 0:
-                        send_message(driver2, num, name, phone, effort = 1)
-                    else:
-                        send_message(driver2, num, name, phone)
+                    logging.info(f'№{num+1} {name} {phone}')
+                    send_message(driver2, num, name, phone)
+
                     
             else:
                 value = driver.find_element(by=By.TAG_NAME, value='tbody').find_element(by=By.TAG_NAME, value='tr').text
-                print(value)
+                logging.info(f'№{num+1} {value}')
         except Exception as e:
-            print(e)
+            logging.error(e)
     driver.quit()
     driver2.quit()
 
 
 def change_link(url: str) -> str:
     date = datetime.now().strftime('%Y-%m-%d')
+    logging.info(date)
     return f'{url}/guests.cards/?from={date}&to={date}'
 
 if __name__ == '__main__':
-    schedule.every().day.do(wd)
+    try:
+
+        schedule.every().day.at('').do(wd)
+    except Exception as e:
+        logging.error(e)
     while True:
         schedule.run_pending()
         time.sleep(0.1)
