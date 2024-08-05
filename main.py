@@ -18,8 +18,9 @@ logging.basicConfig(
 def wd() -> None:
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
-    driver = webdriver.Chrome(options)
-    driver2 = webdriver.Chrome(options)
+    service = webdriver.ChromeService(executable_path='ПУТЬ_ДО_ДРАЙВЕРА')
+    driver = webdriver.Chrome(options, service)
+    driver2 = webdriver.Chrome(options, service)
     driver.implicitly_wait(30)
     driver2.implicitly_wait(30)
     log_in(driver2)
